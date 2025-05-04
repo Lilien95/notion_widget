@@ -4,25 +4,43 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link
-            href="https://www.w3schools.com/w3css/5/w3.css"
-            rel="stylesheet"
-        />
+        <link rel="stylesheet" href="https://www.w3schools.com/w3css/5/w3.css" />
         <link rel="stylesheet" href="style.css" />
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="twoja-sygnatura-integrity" crossorigin="anonymous" referrerpolicy="no-referrer" />
         <title>Pomodoro</title>
     </head>
     <body>
         <div class="fullscreen-background"></div>
-        <div class="container">
-            <div class="menu">
-                <button class="button" id="menu_pomodoro">Pomodoro</button>
-                <button class="button" id="menu_short_break">Short Break</button>
-                <button class="button" id="menu_long_break">Long Break</button>
-            </div>
-            <div id="counter"></div>
-            <div class="control">
-                <button class="button" id="control_start">Start</button>
-                <button class="button" id="control_reset">Reset</button>
+		<div class="container">
+			<div class="menu">
+				<button class="button" id="menu_pomodoro">Pomodoro</button>
+				<button class="button" id="menu_short_break">Short Break</button>
+				<button class="button" id="menu_long_break">Long Break</button>
+			</div>
+			<div id="counter"></div>
+			<div class="control">
+				<button class="button_2" id="control_start"><i class="fa-solid fa-play fa-2xl"></i></button>
+				<button class="button_2" id="control_pause"><i class="fa-solid fa-pause fa-2xl"></i></button>
+				<button class="button_2" id="control_reset"><i class="fa-solid fa-solid fa-arrow-rotate-right fa-2xl"></i></button>
+				<button class="button_2" id="control_settings"><i class="fa-solid fa-gear fa-2xl"></i></button>
+			</div>
+            <div class="settings-overlay" style="display: none;">
+                <div class="settings-content">
+                    <h2>Ustawienia</h2>
+                    <div>
+                        <label for="pomodoroTime">Pomodoro:</label><input type="number" id="pomodoroTime" value="25" min="1">
+                    </div>
+                    <div>
+                        <label for="shortBreakTime">Short Break</label><input type="number" id="shortBreakTime" value="5" min="1">
+                    </div>
+                    <div>
+                        <label for="longBreakTime">Long Break</label><input type="number" id="longBreakTime" value="15" min="1">
+                    </div>
+                    <div>
+                        <button class="button_2" id="applySettings"><i class="fa-solid fa-check fa-2xl"></i></button>
+                        <button class="button_2" id="cancelSettings"><i class="fa-solid fa-xmark fa-2xl"></i></button>
+                    </div>
+                </div>
             </div>
         </div>
         <script src="script.js"></script>
