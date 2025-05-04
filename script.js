@@ -1,49 +1,83 @@
 document.addEventListener('DOMContentLoaded', initialize);
 
-const POMODORO_TIME = 25 * 60;
-const SHORT_BREAK_TIME = 5 * 60;
-const LONG_BREAK_TIME = 15 * 60;
-const WAVES = document.querySelectorAll('.wave');
-const RING = new Audio('../assets/ring.mp3'); // dźwięk po zakończeniu odliczania
-const BEEP = new Audio('../assets/beep.mp3'); // dźwięk odliczania końcowych sekund
+let POMODORO_TIME;
+let SHORT_BREAK_TIME;
+let LONG_BREAK_TIME;
+const RING = new Audio('../assets/ring.mp3');
+const BEEP = new Audio('../assets/beep.mp3');
 
-let currentMode = 'pomodoro'; // Domyślny tryb to pomodoro
-let timer; // Przechowuje ID timera
-let timeLeft = POMODORO_TIME; // Czas pozostały do końca
-let isRunning = false; // Czy timer jest obecnie uruchomiony
+let currentMode = 'pomodoro';
+let timer;
+let timeLeft;
+let isRunning = false;
 
 function initialize() {
     const counterDisplay = document.getElementById('counter');
     const startButton = document.getElementById('control_start');
+    const pauseButton = document.getElementById('control_pause');
     const resetButton = document.getElementById('control_reset');
+    const settingsButton = document.getElementById('control_settings');
     const pomodoroButton = document.getElementById('menu_pomodoro');
     const shortBreakButton = document.getElementById('menu_short_break');
     const longBreakButton = document.getElementById('menu_long_break');
+    const pomodoroInput = document.getElementById('pomodoroTime');
+    const shortBreakInput = document.getElementById('shortBreakTime');
+    const longBreakInput = document.getElementById('longBreakTime');
+    const applySettingsButton = document.getElementById('applySettings');
+    const cancelSettingsButton = document.getElementById('cancelSettings');
+    const settingsOverlay = document.querySelector('.settings-overlay');
+
+    // Ustaw domyślne wartości czasu
+    POMODORO_TIME = parseInt(pomodoroInput.value) * 60;
+    SHORT_BREAK_TIME = parseInt(shortBreakInput.value) * 60;
+    LONG_BREAK_TIME = parseInt(longBreakInput.value) * 60;
+    setTimeByMode(currentMode);
+    updateDisplay(counterDisplay);
+    pauseButton.style.display = 'none';
+
+    settingsButton.addEventListener('click', () => {
+        settingsOverlay.style.display = 'flex'; // Pokaż overlay
+    });
+
+    applySettingsButton.addEventListener('click', () => {
+        POMODORO_TIME = parseInt(pomodoroInput.value) * 60;
+        SHORT_BREAK_TIME = parseInt(shortBreakInput.value) * 60;
+        LONG_BREAK_TIME = parseInt(longBreakInput.value) * 60;
+        setTimeByMode(currentMode);
+        updateDisplay(counterDisplay);
+        resetTimer(counterDisplay, startButton, pauseButton);
+        settingsOverlay.style.display = 'none'; // Ukryj overlay
+    });
+
+    cancelSettingsButton.addEventListener('click', () => {
+        settingsOverlay.style.display = 'none'; // Ukryj overlay
+    });
 
     startButton.addEventListener('click', () => {
-        if (isRunning) {
-            pauseCounter(startButton);
-        } else {
-            startCounter(startButton, counterDisplay);
-        }
+        startCounter(counterDisplay, startButton, pauseButton);
     });
+
+    pauseButton.addEventListener('click', () => {
+        pauseCounter(startButton, pauseButton);
+    });
+
     resetButton.addEventListener('click', () =>
-        resetTimer(counterDisplay, startButton)
-    );
-    pomodoroButton.addEventListener('click', () =>
-        switchMode('pomodoro', counterDisplay, startButton)
-    );
-    shortBreakButton.addEventListener('click', () =>
-        switchMode('short_break', counterDisplay, startButton)
-    );
-    longBreakButton.addEventListener('click', () =>
-        switchMode('long_break', counterDisplay, startButton)
+        resetTimer(counterDisplay, startButton, pauseButton)
     );
 
-    updateDisplay(counterDisplay);
+    pomodoroButton.addEventListener('click', () =>
+        switchMode('pomodoro', counterDisplay, startButton, pauseButton)
+    );
+
+    shortBreakButton.addEventListener('click', () =>
+        switchMode('short_break', counterDisplay, startButton, pauseButton)
+    );
+
+    longBreakButton.addEventListener('click', () =>
+        switchMode('long_break', counterDisplay, startButton, pauseButton)
+    );
 }
 
-// Formatuje czas (sekundy) do formatu MM:SS
 function formatTime(seconds) {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
@@ -54,22 +88,26 @@ function updateDisplay(counterDisplay) {
     counterDisplay.textContent = formatTime(timeLeft);
 }
 
-function startCounter(startButton, counterDisplay) {
-    clearInterval(timer);
-    timer = setInterval(() => decrementTime(counterDisplay, startButton), 1000);
-    isRunning = true;
-    startButton.textContent = 'Pause';
-    toggleWaveAnimation(true);
+function startCounter(counterDisplay, startButton, pauseButton) {
+    if (!isRunning) {
+        clearInterval(timer);
+        timer = setInterval(() => decrementTime(counterDisplay, startButton, pauseButton), 1000);
+        isRunning = true;
+        startButton.style.display = 'none';
+        pauseButton.style.display = 'inline-block';
+    }
 }
 
-function pauseCounter(startButton) {
-    clearInterval(timer);
-    isRunning = false;
-    startButton.textContent = 'Start';
-    toggleWaveAnimation(false);
+function pauseCounter(startButton, pauseButton) {
+    if (isRunning) {
+        clearInterval(timer);
+        isRunning = false;
+        startButton.style.display = 'inline-block';
+        pauseButton.style.display = 'none';
+    }
 }
 
-function decrementTime(counterDisplay, startButton) {
+function decrementTime(counterDisplay, startButton, pauseButton) {
     if (timeLeft > 0) {
         if (timeLeft <= 6) {
             BEEP.play();
@@ -80,17 +118,18 @@ function decrementTime(counterDisplay, startButton) {
         clearInterval(timer);
         RING.play();
         isRunning = false;
-        startButton.textContent = 'Start';
+        startButton.style.display = 'inline-block';
+        pauseButton.style.display = 'none';
     }
 }
 
-function resetTimer(counterDisplay, startButton) {
+function resetTimer(counterDisplay, startButton, pauseButton) {
     clearInterval(timer);
     setTimeByMode(currentMode);
     updateDisplay(counterDisplay);
     isRunning = false;
-    startButton.textContent = 'Start';
-    toggleWaveAnimation(false);
+    startButton.style.display = 'inline-block';
+    pauseButton.style.display = 'none';
 }
 
 function setTimeByMode(mode) {
@@ -106,24 +145,14 @@ function setTimeByMode(mode) {
             break;
     }
 }
-// Zmienia tryb (pomodoro/przerwa) i resetuje licznik
-function switchMode(mode, counterDisplay, startButton) {
+
+function switchMode(mode, counterDisplay, startButton, pauseButton) {
     currentMode = mode;
-    resetTimer(counterDisplay, startButton);
+    setTimeByMode(mode); // Ustaw nowy czas przed resetowaniem wyświetlacza
+    updateDisplay(counterDisplay);
+    resetTimer(counterDisplay, startButton, pauseButton);
 }
 
-// Włącza lub wyłącza animację fal
-function toggleWaveAnimation(activate) {
-    WAVES.forEach((wave) => {
-        if (activate) {
-            wave.classList.add('wave-active');
-        } else {
-            wave.classList.remove('wave-active');
-        }
-    });
-}
-
-// Formatuje liczbę jako dwucyfrową (np. 3 -> "03")
 function numberFormatUtil(number) {
     return String(number).padStart(2, '0');
 }
