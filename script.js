@@ -3,8 +3,8 @@ document.addEventListener('DOMContentLoaded', initialize);
 let POMODORO_TIME;
 let SHORT_BREAK_TIME;
 let LONG_BREAK_TIME;
-const RING = new Audio('https://github.com/Lilien95/notion_widget/blob/main/ring.mp3');
-const BEEP = new Audio('https://github.com/Lilien95/notion_widget/blob/main/beep.mp3');
+const RING = new Audio('https://rollrollgo.github.io/notion_html_widgets/assets/ring.mp3');
+const BEEP = new Audio('https://rollrollgo.github.io/notion_html_widgets/assets/beep.mp3');
 
 let currentMode = 'pomodoro';
 let timer;
